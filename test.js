@@ -40,7 +40,14 @@ var mockNextHandler = function mockNextHandler(action) {
 describe('createRavenMiddleware', function () {
   jsdom();
   var createRavenMiddleware = require('./index');
-  var Raven = require('raven-js');
+  global.Raven = {
+    config: function config() {},
+    captureException: function captureException() {},
+    captureBreadcrumb: function captureBreadcrumb() {},
+    isSetup: function isSetup() {
+      return true;
+    }
+  };
 
   beforeEach(function () {
     _sinon2['default'].stub(Raven, 'config', function () {
@@ -64,18 +71,6 @@ describe('createRavenMiddleware', function () {
     var actionHandler = createRavenMiddleware('abc')(stubStore)();
     _assert2['default'].equal(actionHandler.constructor, Function);
     _assert2['default'].equal(actionHandler.length, 1);
-  });
-
-  it('configures Raven', function (done) {
-    Raven.config.restore();
-    _sinon2['default'].stub(Raven, 'config', function (dsn, cfg) {
-      _assert2['default'].equal(dsn, 'abc');
-      _assert2['default'].deepEqual(cfg, { tags: { test: 'test' } });
-      done();
-
-      return { install: function install() {} };
-    });
-    createRavenMiddleware('abc', { tags: { test: 'test' } });
   });
 
   it('reports error', function () {

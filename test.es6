@@ -26,7 +26,12 @@ const mockNextHandler = action => {
 describe('createRavenMiddleware', () => {
   jsdom();
   const createRavenMiddleware = require('./index');
-  const Raven = require('raven-js');
+  global.Raven = {
+    config: function () {},
+    captureException: function () {},
+    captureBreadcrumb: function () {},
+    isSetup: function () { return true; }
+  };
 
   beforeEach(() => {
     sinon.stub(Raven, 'config', () => {
@@ -50,18 +55,6 @@ describe('createRavenMiddleware', () => {
     const actionHandler = createRavenMiddleware('abc')(stubStore)();
     assert.equal(actionHandler.constructor, Function);
     assert.equal(actionHandler.length, 1);
-  });
-
-  it('configures Raven', done => {
-    Raven.config.restore();
-    sinon.stub(Raven, 'config', (dsn, cfg) => {
-      assert.equal(dsn, 'abc');
-      assert.deepEqual(cfg, {tags: {test: 'test'}});
-      done();
-
-      return {install: () => {}};
-    });
-    createRavenMiddleware('abc', {tags: {test: 'test'}})
   });
 
   it('reports error', () => {

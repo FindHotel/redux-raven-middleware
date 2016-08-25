@@ -1,22 +1,9 @@
-import Raven from 'raven-js';
-
-export default function createMiddleware(dsn, cfg={}) {
+export default function createMiddleware() {
   /*
     Function that generates a crash reporter for Sentry.
-
-    dsn - private Sentry DSN.
-    cfg - object to configure Raven.
   */
-  if (!Raven.isSetup()) {
-    if (!dsn) {
-      // Skip this middleware if there is no DSN.
-      console.error('[redux-raven-middleware] Sentry DSN required.');
-      return store => next => action => {
-        next(action);
-      };
-    }
-    Raven.config(dsn, cfg).install();
-  }
+
+  if (!Raven || !Raven.isSetup()) return;
 
   return store => next => action => {
     try {
