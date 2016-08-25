@@ -3,7 +3,11 @@ export default function createMiddleware() {
     Function that generates a crash reporter for Sentry.
   */
 
-  if (!Raven || !Raven.isSetup()) return;
+  if (typeof Raven === 'undefined' || !Raven.isSetup()) {
+    return store => next => action => {
+      next(action);
+    };
+  }
 
   return store => next => action => {
     try {

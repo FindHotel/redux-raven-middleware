@@ -10,7 +10,15 @@ function createMiddleware() {
     Function that generates a crash reporter for Sentry.
   */
 
-  if (!Raven || !Raven.isSetup()) return;
+  if (typeof Raven === 'undefined' || !Raven.isSetup()) {
+    return function (store) {
+      return function (next) {
+        return function (action) {
+          next(action);
+        };
+      };
+    };
+  }
 
   return function (store) {
     return function (next) {
